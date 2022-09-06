@@ -1,0 +1,136 @@
+import pygame
+from pygame.draw import *
+from random import randint
+pygame.init()
+pygame.font.init()
+
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+GREEN = (0, 255, 0)
+MAGENTA = (255, 0, 255)
+CYAN = (0, 255, 255)
+BLACK = (0, 0, 0)
+COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
+
+def registration():
+    global input_name
+    input_name = input("Enter player number: ")
+    return int(input_name)
+
+registration()
+while int(input_name) <= 0:
+    registration()
+
+score = 0
+FPS = 30
+screen = pygame.display.set_mode((1200, 900))
+
+def new_ball():
+    global x, y, r, c
+    x = randint(100,700)
+    y = randint(100,500)
+    r = randint(30,50)
+    c = COLORS[randint(0, 5)]
+    circle(screen, c, (x, y), r)
+
+def new_ball1():
+    global x1, y1, r1, c1
+    x1 = randint(700,1200)
+    y1 = randint(100,500)
+    r1 = randint(30,50)
+    c1 = COLORS[randint(0, 5)]
+    circle(screen, c1, (x1, y1), r1)
+
+def square():
+    global x2, y2, c2
+    x2 = 0
+    y2 = 700
+    c2 = COLORS[randint(0, 5)]
+    rect(screen, c2, (x2, y2, 50, 50))
+
+def click(event):
+    x_click, y_click = pygame.mouse.get_pos()
+    global score
+    if x - r<x_click< x + r and y - r<y_click<y + r:
+        print("попал")
+        score += 1
+        print(score)
+        new_ball()
+    elif x1 - r1<x_click< x1 + r1 and y1 - r1<y_click<y1 + r1:
+        print("попал1")
+        score += 1
+        print(score)
+        new_ball1()
+    elif x2 - 50<x_click< x2 + 50 and y2 - 50<y_click< y2 + 50:
+        print("Очко")
+        score += 21
+    else:
+        print("мимо")
+
+def new_ball_mov():
+    global x, y, r, c
+    x += randint(-10, 10)
+    y += randint(-10, 10)
+    if x < 0:
+        x = -x
+    elif y < 0:
+        y = -y
+    circle(screen, c, (x, y), r)
+
+def new_ball_mov1():
+    global x1, y1, r1, c1
+    x1 += randint(-10, 10)
+    y1 += randint(-10, 10)
+    if x1 > 1200:
+        x1 -= 20
+    elif y1 < 0:
+        y1 += 20
+    circle(screen, c1, (x1, y1), r1)
+
+def square_mov():
+    global x2, y2, c2
+    x2 += randint(1, 100)
+    if x2 > 1300:
+        x2 -= 1400
+    rect(screen, c2, (x2, y2, 50, 50))
+
+def score_display():
+    f1 = pygame.font.Font(None, 40)
+    img1 = f1.render(str(score), False, RED)
+    img2 = f1.render('Score: ', False, RED)
+    screen.blit(img1, (100, 800))
+    screen.blit(img2, (10, 800))
+
+def open_file():
+    open("players and leaders output", "a")
+
+pygame.display.update()
+clock = pygame.time.Clock()
+finished = False
+
+new_ball()
+new_ball1()
+square()
+
+while not finished:
+    clock.tick(FPS)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            finished = True
+            if score >= 50:
+                db = "Score:" + str(score) + " Player number: " + input_name + "\n"
+                f = open("playres and leaders input.txt", "a")
+                f.write(db)
+                f.close()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            click(pygame.mouse.get_pos())
+
+    new_ball_mov()
+    new_ball_mov1()
+    square_mov()
+    score_display()
+    pygame.display.update()
+    screen.fill(BLACK)
+
+pygame.quit()
